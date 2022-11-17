@@ -1,0 +1,97 @@
+---
+- name: Check connectivity
+  hosts: clients
+  become: yes
+  vars:
+       first_line: !vault |
+                   $ANSIBLE_VAULT;1.1;AES256
+                   34616336366636666137343639623636313832346665393666613562663038386566306563656234
+                   3162646561376637383362656332303937383531356637330a396434376236333535323034313435
+                   38623938333138346664646163383731373561616135323064346364663637343137656434363864
+                   3039616531643635360a356130356335333638616362613761306234613138303666663763313135
+                   6336
+       second_line: "DevOps"
+
+  tasks: 
+  - name: Check ping
+    ansible.builtin.ping:
+
+  - name: Install latest version of Apache
+    ansible.builtin.apt: name=apache2 update_cache=yes state=latest
+
+  - name: Copy file
+    ansible.builtin.template:
+      src: ./templates/index.html.j2
+      dest: /var/www/html/index.html
+    notify:
+    - Restart apache
+
+  - name: Check Apache uptime
+    ansible.builtin.shell: systemctl status apache2 | grep running
+    register: result
+
+  - name: Print return information from the previous task
+    ansible.builtin.debug:
+      msg: "{{ result.stdout }}"
+
+  - name: update cache
+    ansible.builtin.apt:
+      update_cache: yes
+
+  - name: Install Java
+    ansible.builtin.apt:
+      name: openjdk-11-jdk
+
+  - name: Install MVN
+    ansible.builtin.apt:
+      name: maven
+
+  - name: Check Java version
+    ansible.builtin.shell: javac -version
+    register: result
+
+  - name: Print return information from the previous task
+    ansible.builtin.debug:
+      msg: "{{ result.stdout }}"
+
+  - name: Check MVN uptime
+    ansible.builtin.shell: mvn -v
+    register: result
+
+  - name: Print return information from the previous task
+    ansible.builtin.debug:
+      msg: "{{ result.stdout }}"
+
+  - name: ensure the jenkins apt repository key is installed
+    apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io.key state=present
+    become: yes
+
+  - name: ensure the repository is configured
+    apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+    become: yes
+
+  - name: ensure jenkins is installed
+    apt: name=jenkins update_cache=yes
+    become: yes
+
+  - name: ensure jenkins is running
+    service: name=jenkins state=started
+
+  - name: Check Jenkins version
+    ansible.builtin.shell: systemctl status jenkins | grep running
+    register: result
+
+  - name: Print return information from the previous task
+    ansible.builtin.debug:
+      msg: "{{ result.stdout }}"
+
+    - name: OpenJDK
+      ansible.builtin.apt:
+        name: default-jdk
+        state: present
+
+  handlers:
+    - name: Restart apache
+      ansible.builtin.service:
+        name: apache2
+        state: restarted

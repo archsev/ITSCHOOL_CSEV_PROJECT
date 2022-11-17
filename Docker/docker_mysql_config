@@ -1,0 +1,5 @@
+docker volume create mysql-volume
+docker run --name=tns_mysql -p 3306:3306 -v mysql-volume:/mysql/var/lib -e MYSQL_ROOT_PASSWORD=redacted -e MYSQL_ROOT_HOST=% -d mysql/mysql-server:latest
+
+docker volume create phpmyadmin-volume
+docker run --name tns-phpmyadmin -v phpmyadmin-volume:/etc/phpmyadmin/config.usr.inc.php --link tns_mysql:db -p 82:80 -d phpmyadmin/phpmyadmin
