@@ -1,28 +1,65 @@
 ---
-- name: Ensure old versions of Docker are not installed.
-  package:
-    name:
-      - docker
-      - docker-engine
-    state: absent
+ - name: Setup Docker 
+   hosts: locals
+   become: yes
+   tasks:
+      - name: Install latest version of Apache
+        ansible.builtin.apt: name=apache2 update_cache=yes state=latest
 
-- name: Ensure dependencies are installed.
-  apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - software-properties-common
-      - gnupg
-      - lsb-release
-    state: present
+      - name: Check Apache uptime
+        ansible.builtin.shell: systemctl status apache2 | grep running
+        register: result
 
-- name: Add Docker GPG apt Key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
+      - name: Print return information from the previous task
+        ansible.builtin.debug:
+          msg: "{{ result.stdout }}"
 
-- name: Add Docker Repository
-  apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu focal stable
-    state: present
+      - name: update cache
+        ansible.builtin.apt:
+          update_cache: yes
+
+      - name: Install Java
+        ansible.builtin.apt:
+          name: openjdk-11-jdk
+
+      - name: Check Java version
+        ansible.builtin.shell: javac -version
+        register: result
+
+      - name: Print return information from the previous task
+        ansible.builtin.debug:
+          msg: "{{ result.stdout }}"
+
+      - name: ensure the jenkins apt repository key is installed
+        apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io.key state=present
+        become: yes
+
+      - name: ensure the repository is configured
+        apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+        become: yes
+
+      - name: ensure jenkins is installed
+        apt: name=jenkins update_cache=yes
+        become: yes
+
+      - name: ensure jenkins is running
+        service: name=jenkins state=started
+
+      - name: Check Jenkins version
+        ansible.builtin.shell: systemctl status jenkins | grep running
+        register: result
+
+      - name: Print return information from the previous task
+        ansible.builtin.debug:
+          msg: "{{ result.stdout }}"
+
+      - name: OpenJDK
+        ansible.builtin.apt:
+            name: default-jdk
+            state: present
+
+   handlers:
+      - name: Restart apache
+        ansible.builtin.service:
+          name: apache2
+          state: restarted
