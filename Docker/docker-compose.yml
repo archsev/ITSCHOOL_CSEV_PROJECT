@@ -69,8 +69,8 @@ services:
         - ./grafana_stack/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
         - ./grafana_stack/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
         environment:
-        - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
-        - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+        - GF_SECURITY_ADMIN_USER=${ADMIN_USER}
+        - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
         - GF_USERS_ALLOW_SIGN_UP=false
         restart: unless-stopped
         expose:
@@ -104,8 +104,8 @@ services:
         volumes:
         - ./grafana_stack/caddy:/etc/caddy
         environment:
-        - ADMIN_USER=${ADMIN_USER:-admin}
-        - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+        - ADMIN_USER=${ADMIN_USER}
+        - ADMIN_PASSWORD=${ADMIN_PASSWORD}
         - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-$2a$14$1l.IozJx7xQRVmlkEQ32OeEEfP5mRxTpbDTCTcXRqn19gXD8YK1pO}
         restart: unless-stopped
         networks:
@@ -121,10 +121,10 @@ services:
             - mysql_data:/var/lib/mysql
         restart: always
         environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: wordpress
-            MYSQL_USER: wordpress
-            MYSQL_PASSWORD: wordpress
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         networks:
             public_net:
                 ipv4_address: ${MYSQL_IP}
@@ -150,9 +150,9 @@ services:
             - ${WORDPRESS_EXPOSED_PORT}
         environment:
             WORDPRESS_DB_HOST: mysql:3306
-            WORDPRESS_DB_USER: wordpress
-            WORDPRESS_DB_PASSWORD: wordpress
-            WORDPRESS_DB_NAME: wordpress
+            WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+            WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+            WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
         volumes:
             - ./wordpress_data/themes:/var/www/html/wp-content/themes
             - ./wordpress_data/plugins:/var/www/html/wp-content/plugins
@@ -168,9 +168,9 @@ services:
             - ${WORDPRESS_EXPOSED_PORT}
         environment:
             WORDPRESS_DB_HOST: mysql:3306
-            WORDPRESS_DB_USER: wordpress
-            WORDPRESS_DB_PASSWORD: wordpress
-            WORDPRESS_DB_NAME: wordpress
+            WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+            WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+            WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
         volumes:
             - ./wordpress_data/themes:/var/www/html/wp-content/themes
             - ./wordpress_data/plugins:/var/www/html/wp-content/plugins
@@ -186,9 +186,9 @@ services:
             - ${WORDPRESS_EXPOSED_PORT}
         environment:
             WORDPRESS_DB_HOST: mysql:3306
-            WORDPRESS_DB_USER: wordpress
-            WORDPRESS_DB_PASSWORD: wordpress
-            WORDPRESS_DB_NAME: wordpress
+            WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+            WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+            WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
         volumes:
             - ./wordpress_data/themes:/var/www/html/wp-content/themes
             - ./wordpress_data/plugins:/var/www/html/wp-content/plugins
