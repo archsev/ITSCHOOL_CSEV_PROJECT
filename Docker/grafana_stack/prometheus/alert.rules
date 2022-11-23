@@ -68,3 +68,29 @@ groups:
       summary: "Jenkins high memory usage"
       description: "Jenkins memory consumption is at {{ humanize $value}}."
 
+  - alert: Wordpress_1_down
+    expr: absent(container_memory_usage_bytes{name="jcsev_wordpress_img_1"})
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Wordpress_1_down"
+      description: "Wordpress container is down for more than 30 seconds."
+
+  - alert: Wordpress_2down
+    expr: absent(container_memory_usage_bytes{name="jcsev_wordpress_img_2"})
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Wordpress_2_down"
+      description: "Wordpress container is down for more than 30 seconds."
+
+  - alert: Wordpress_3_down
+    expr: absent(container_memory_usage_bytes{name="jcsev_wordpress_img_3"})
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Wordpress_3_down"
+      description: "v container is down for more than 30 seconds."
